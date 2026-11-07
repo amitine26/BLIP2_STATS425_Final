@@ -1,0 +1,24 @@
+# Large original image archive
+/data/val2014.zip
+
+# Original VQAv2 annotations
+/data/v2_mscoco_val2014_annotations.json
+
+# Hugging Face model files and temporary offloading
+/hf_cache/
+/offload/
+
+# Jupyter temporary files
+.ipynb_checkpoints/
+**/.ipynb_checkpoints/
+
+# Python temporary files
+__pycache__/
+
+# Local environments and secrets
+.venv/
+.env
+.env.*
+
+# Common experiment scratch
+*.partial
