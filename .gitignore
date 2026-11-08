@@ -22,3 +22,7 @@ __pycache__/
 
 # Common experiment scratch
 *.partial
+
+# Downloaded evaluator cache and experiment writer locks
+/results/query_ablation/evaluator/
+/results/query_ablation/**/experiment.lock
