@@ -4,7 +4,7 @@
 
 This repository investigates how changing the number of Q-Former query tokens **at inference time** affects the zero-shot visual question-answering (VQA) behavior of a pretrained BLIP-2 model. The project uses **Jupyter notebooks only** for Python code, with Anaconda for the environment and Hugging Face Transformers for the pretrained model. There is **no need to clone Salesforce LAVIS**.
 
-> **Project status:** The VQAv2 validation subset has been prepared; the pretrained BLIP-2 model has been loaded and verified; and a single-question zero-shot baseline smoke test has succeeded. Multi-question evaluation and K-ablation notebooks are upcoming.
+> **Project status:** The VQAv2 validation subset has been prepared; the pretrained BLIP-2 model has been loaded and verified; and a single-question zero-shot baseline smoke test has succeeded. Resumable query-ablation and official VQA scoring notebooks are implemented. The main experiment remains to be run.
 
 ## 1. Background: the original BLIP-2 paper
 
@@ -51,7 +51,9 @@ BLIP2_STATS425_Final/
 ├── scripts/
 │   ├── data_extraction.ipynb
 │   ├── load_blip2.ipynb
-│   └── baseline_test.ipynb
+│   ├── baseline_test.ipynb
+│   ├── query_ablation.ipynb
+│   └── score_results.ipynb
 ├── data/                              # Other files may be committed (see size warning)
 │   ├── v2_OpenEnded_mscoco_val2014_questions.json
 │   ├── v2_mscoco_val2014_annotations.json
@@ -226,11 +228,56 @@ The notebook does **not** run fine-tuning, download a second model copy, or repo
 
 The model's answer matches the most frequently reported human answer for this image. This is a **successful qualitative smoke test**, not evidence of overall VQAv2 accuracy. The existing notebook intentionally avoids verbose GPU diagnostics; any later performance profiling should be collected consistently in the experiment notebooks.
 
-## 8. Upcoming work
+## 8. Run the query-count experiment
 
-The next notebooks will test the proposed K conditions and evaluate predictions on the **same selected validation questions**. For a fair comparison, we will use a fixed generation protocol across the tested settings; the single-question baseline's greedy decoding is only a functionality check. We will report the genuine pruning conditions (K=8/16) separately from the repeated-query controls (K=64/128).
+Use **Python (blip2 AMD)** on the local RX 9070 setup. The experiment reuses the
+existing loader, BF16 precision, automatic placement with the 12 GiB GPU budget,
+and shared Hugging Face cache. The NVIDIA setup above remains relevant to a
+teammate using that hardware. Each run records its actual GPU, ROCm version,
+package versions, checkpoint revision, device map, query indices, and data hashes.
 
-**Not yet implemented in this repository:** multi-question zero-shot generation, modified-query evaluation, official VQAv2 scoring, and aggregate plots. These should not be described as completed results.
+1. Open `scripts/query_ablation.ipynb` and choose `STAGE = "smoke"` in its first code cell.
+2. Run all cells. This evaluates the same 10 questions in all 13 conditions.
+3. Open `scripts/score_results.ipynb`, select the same stage, and run all cells.
+4. When ready for a larger experiment, set the stage to `"pilot"` for 500 questions
+   or `"main"` for the complete existing 2,000-question subset in both notebooks.
+
+K=8 and K=16 each use five fixed seeds, 0-4. The eight retained queries are a
+subset of the sixteen retained queries within each seed. K=32 uses the original
+queries. K=64 and K=128 repeat all 32 pretrained query embeddings two and four
+times before the Q-Former. They are exploratory repeated-query controls. The
+13-condition order is shuffled reproducibly using seed 2026.
+
+Generation uses the prompt `Question: {question} Short answer:`, five beams,
+length penalty -1, at most 10 new tokens, and batch size one. Every condition
+receives two unmeasured warmups. The earlier baseline notebook uses greedy
+decoding for its single-question functionality check.
+
+Results are stored in `results/query_ablation/<stage>-<signature>/`. Each condition
+has durable `records.jsonl`, official-format `predictions.json`, and `status.json`.
+Rerun identical settings to resume. A lock prevents concurrent writers and a
+manifest prevents combining incompatible settings. A changed protocol, checkpoint,
+environment, or dataset gets a different experiment directory. Interrupted final
+record writes are recovered. The original K=32 queries are restored on exit.
+
+The scoring notebook verifies the pinned official VQA evaluator source at its
+first download, translates its two Python 2 print statements, and preserves its
+answer normalization and consensus scoring. It checks all question IDs and scores
+only the evaluated subset. It selects the most recently completed experiment for
+the chosen stage, or an explicitly supplied `EXPERIMENT_DIR`.
+
+The `analysis/` directory contains per-run and grouped accuracy tables, per-question
+scores, accuracy by answer type, paired differences against K=32, and figures for
+accuracy, latency, throughput, peak allocated memory, and query-selection variability.
+95% paired image-cluster bootstrap intervals use 2,000 replicates and seed 425.
+Grouped intervals condition on the selected query subsets. Standard deviations
+across the five subsets are reported separately.
+
+Timing covers synchronized `model.generate()` only. Image reading, preprocessing,
+transfers, decoding, and saving are excluded. Throughput uses summed generation
+time. Peak allocated GPU memory includes the model and current inputs. Keep each
+hardware setup's speed and memory comparisons within that setup. Smoke results
+validate execution and are too small for project conclusions.
 
 ## 9. GitHub: ignoring only `val2014.zip`
 
