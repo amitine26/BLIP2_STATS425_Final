@@ -1,0 +1,10 @@
+{
+  "experiment_signature": "825216e39c820d63529b3e5f0e42970335c7d99ad406f2ea33ec321242345333",
+  "evaluator_revision": "a013f0043c1e2cdc995922dfe257f7149aa9af06",
+  "evaluator_sha256": "f08edfcad5be0112500993e245c706b6cb928eadebe203f89f838e5e0d04bec8",
+  "bootstrap_replicates": 2000,
+  "bootstrap_seed": 425,
+  "resampling_unit": "image",
+  "group_interval_conditions_on": "the fixed query subsets",
+  "score_units": "percent"
+}
