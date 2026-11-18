@@ -1,0 +1,22 @@
+{
+  "experiment_signature": "999dab221edb4e81992ddfa0fbe506a796a2c4852eb967e827132ae1e1d62097",
+  "experiment_type": "leave_one_query_out",
+  "stage": "main",
+  "questions_per_condition": 2000,
+  "condition_count": 33,
+  "gpu_name": "NVIDIA GeForce RTX 5070 Ti",
+  "gpu_backend": "cuda",
+  "evaluator_revision": "a013f0043c1e2cdc995922dfe257f7149aa9af06",
+  "evaluator_sha256": "f08edfcad5be0112500993e245c706b6cb928eadebe203f89f838e5e0d04bec8",
+  "score_units": "percent",
+  "importance_units": "percentage points",
+  "importance_definition": "K=32 baseline accuracy minus accuracy after removing query i",
+  "bootstrap_replicates": 2000,
+  "bootstrap_seed": 425,
+  "resampling_unit": "distinct image; all associated questions retained; question-weighted mean",
+  "pointwise_interval": "95% percentile; not multiplicity-adjusted",
+  "simultaneous_interval": "approximate 95% band using maximum absolute centered bootstrap deviation across 32 queries",
+  "agreement_definition": "exact saved answer-string equality",
+  "answer_type_missing": "NaN if no questions in category",
+  "interpretation": "conditional marginal importance, not independent or optimal subset importance"
+}

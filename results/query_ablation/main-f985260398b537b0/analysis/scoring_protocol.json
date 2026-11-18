@@ -1,0 +1,18 @@
+{
+  "experiment_signature": "f985260398b537b0d482853a05eb87ea958f1231eb49c1958056f2678b308aeb",
+  "evaluator_revision": "a013f0043c1e2cdc995922dfe257f7149aa9af06",
+  "evaluator_sha256": "f08edfcad5be0112500993e245c706b6cb928eadebe203f89f838e5e0d04bec8",
+  "bootstrap_replicates": 2000,
+  "bootstrap_seed": 425,
+  "resampling_unit": "image",
+  "group_interval_conditions_on": "the fixed query subsets",
+  "score_units": "percent",
+  "stage": "main",
+  "gpu_name": "NVIDIA GeForce RTX 5070 Ti",
+  "gpu_backend": "cuda",
+  "interval_type": "pointwise percentile, 95%; not multiplicity-adjusted",
+  "score_change_unit": "percentage points",
+  "answer_agreement": "exact saved answer string equality",
+  "group_change_rates": "arithmetic mean of per-condition percentages",
+  "query_expansion": "repeated pretrained queries; not independently learned capacity"
+}

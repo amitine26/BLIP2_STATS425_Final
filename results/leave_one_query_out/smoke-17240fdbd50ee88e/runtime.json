@@ -1,0 +1,11 @@
+{
+  "signature": "17240fdbd50ee88e76e111dc79da36c081a1a93e01ea8c01fb6917a74bc2467e",
+  "runtime_comparison_key": "3ce189f6cd4769effec8a5bda31a013c9f1afb1545fb76a5241832a494d8bf4a",
+  "questions_per_condition": 10,
+  "condition_count": 33,
+  "prediction_count": 330,
+  "generation_seconds_total": 43.896901499992964,
+  "question_seconds_total": 45.968604499999856,
+  "full_fresh_loop_seconds": 62.3774540000004,
+  "last_session_loop_seconds": 62.3774540000004
+}
