@@ -431,12 +431,11 @@ git push origin query-ablation-cuda
 
 Inspect the staged list and avoid accidentally committing large dataset archives, local caches, or unneeded files. If a large file is already included in an unpublished commit, excluding it with `.gitignore` alone does not remove it from that commit's history.
 
-## 12. References and resources
+## 12. References
 
-- BLIP-2 paper (ICML 2023): https://proceedings.mlr.press/v202/li23q.html
-- Original Salesforce LAVIS repository: https://github.com/salesforce/LAVIS
-- BLIP-2 Flan-T5-XL checkpoint: https://huggingface.co/Salesforce/blip2-flan-t5-xl
-- Hugging Face Transformers documentation: https://huggingface.co/docs/transformers/
-- VQAv2 downloads: https://visualqa.org/download.html
-- Official VQAv2 evaluation: https://visualqa.org/evaluation.html
-- PyTorch installation: https://pytorch.org/get-started/locally/
+- Li et al. (2023), **BLIP-2**, ICML: [https://proceedings.mlr.press/v202/li23q.html](https://proceedings.mlr.press/v202/li23q.html)
+- Salesforce LAVIS (original code): [https://github.com/salesforce/LAVIS](https://github.com/salesforce/LAVIS)
+- Salesforce Hugging Face checkpoint: [https://huggingface.co/Salesforce/blip2-flan-t5-xl](https://huggingface.co/Salesforce/blip2-flan-t5-xl)
+- Hugging Face Transformers: [https://huggingface.co/docs/transformers/](https://huggingface.co/docs/transformers/)
+- VQAv2 data downloads: [https://visualqa.org/download.html](https://visualqa.org/download.html)
+- VQAv2 evaluation protocol: [https://visualqa.org/evaluation.html](https://visualqa.org/evaluation.html)
