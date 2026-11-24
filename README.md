@@ -4,21 +4,7 @@ Zero-shot visual question answering on VQAv2 | Inference-time query ablation and
 
 This repository investigates how the number and identity of pretrained Q-Former query tokens affect BLIP-2's zero-shot visual question answering (VQA) accuracy and inference efficiency. The experiments use the Hugging Face Transformers implementation of `Salesforce/blip2-flan-t5-xl` and contain no model fine-tuning. All executable project code is kept in Jupyter notebooks under `scripts/`.
 
-## 1. Project status
-
-The dataset preparation, model-loading baseline, query-count ablation, leave-one-query-out ablation (LOQOA), and official VQAv2 scoring pipelines have been implemented and executed. The completed NVIDIA GeForce RTX 5070 Ti main-stage experiments include:
-
-| Experiment | Conditions | Questions per condition | Saved predictions |
-| --- | ---: | ---: | ---: |
-| Query-count ablation | 13 | 2,000 | 26,000 |
-| Leave-one-query-out ablation | 33 | 2,000 | 66,000 |
-| Combined | 46 | 2,000 per condition | 92,000 |
-
-Both experiments use the same 2,000-question VQAv2 validation subset, with official VQA answer normalization and annotator-consensus scoring. The original K = 32 reference achieved 59.490% accuracy in both completed NVIDIA experiments.
-
-The query-count experiment was also previously run on an AMD Radeon RX 9070. Those results are useful as an additional replication, but GPU speed and memory figures must be compared within a single hardware and software setup rather than directly across AMD and NVIDIA.
-
-## 2. Background and research questions
+## 1. Background and research questions
 
 The main reference is:
 
@@ -40,9 +26,9 @@ The main research questions are:
 
 This is zero-shot VQAv2 evaluation, not supervised VQA fine-tuning. The original paper reports those as separate evaluation settings.
 
-## 3. Experimental design
+## 2. Experimental design
 
-### 3.1 Query-count ablation
+### 2.1 Query-count ablation
 
 The original K = 32 configuration is the reference. The 13 conditions are:
 
@@ -58,7 +44,7 @@ Query subset seeds are 0, 1, 2, 3, and 4. Within a seed, the K = 8 selection is 
 
 The K = 64 and K = 128 cases repeat pretrained embeddings before Q-Former processing. They do not add 32 or 96 new independent learned queries, and they do not test a separately pretrained Q-Former of greater capacity. Any claim about genuinely larger learned bottlenecks would require additional training.
 
-### 3.2 Leave-one-query-out ablation (LOQOA)
+### 2.2 Leave-one-query-out ablation (LOQOA)
 
 LOQOA evaluates the marginal contribution of each of the original 32 pretrained queries. It uses 33 conditions:
 
@@ -83,7 +69,7 @@ LOQOA question counts are controlled by `NUM_QUESTIONS` in `scripts/leave_one_qu
 
 Its 10-question sample is nested in its 200-question sample, which is nested in the 2,000-question sample. All are selected reproducibly from the prepared validation subset. The notebook also reports observed run times and projects the 2,000-question runtime using either pilot stage and a fixed-overhead plus linear-cost estimate.
 
-### 3.3 Shared inference protocol
+### 2.3 Shared inference protocol
 
 Both experiment families use:
 
@@ -97,7 +83,7 @@ Both experiment families use:
 
 The separate one-question `baseline_test.ipynb` uses greedy decoding as a functionality check only. It should not be compared with the beam-search benchmark results as though it were the same experimental condition.
 
-## 4. Repository structure
+## 3. Repository structure
 
 ```text
 BLIP2_STATS425_Final/
@@ -136,9 +122,9 @@ Some files shown under `data/` and the model-cache directories are generated or 
 
 Repository convention: Python experiments and supporting logic live in `scripts/*.ipynb`. No custom `.py` script is required to run the current pipeline.
 
-## 5. Installation and environment setup
+## 4. Installation and environment setup
 
-### 5.1 Clone the repository and prepare Python
+### 4.1 Clone the repository and prepare Python
 
 Install Anaconda or Miniconda and open Anaconda Prompt. The GitHub repository is:
 
@@ -158,7 +144,7 @@ The `main` branch contains team-approved work. Development for the NVIDIA query 
 git switch query-ablation-cuda
 ```
 
-### 5.2 Install GPU-enabled PyTorch
+### 4.2 Install GPU-enabled PyTorch
 
 The completed NVIDIA experiments were run on an RTX 5070 Ti. A compatible NVIDIA driver is required. Check it with:
 
@@ -182,7 +168,7 @@ Verify GPU support:
 python -c "import torch; print('PyTorch:', torch.__version__); print('GPU:', torch.cuda.get_device_name(0) if torch.cuda.is_available() else 'none'); print('GPU available:', torch.cuda.is_available()); print('BF16:', torch.cuda.is_bf16_supported() if torch.cuda.is_available() else 'n/a')"
 ```
 
-### 5.3 Install project dependencies
+### 4.3 Install project dependencies
 
 With the intended Conda environment activated:
 
@@ -193,15 +179,10 @@ python -m pip check
 
 The repository requirements cover Transformers, Accelerate, image processing, numerical analysis, plotting, and Jupyter. GPU-enabled PyTorch is installed separately to avoid accidentally choosing a CPU-only build. Salesforce LAVIS does not need to be cloned or installed.
 
-Windows compatibility note: During NVIDIA development, Windows Smart App Control blocked native extensions from some package builds. The working environment used SentencePiece 0.2.1 and pandas 2.3.3, along with the `pytz`, `tzdata`, and `python-dateutil` dependencies required by pandas. These version choices are useful reproducibility notes, not guarantees that every Windows application-control policy will accept the same binaries. Before running GPU or scoring notebooks, test the imports:
-
 ```bash
 python -c "import sentencepiece, pandas, numpy, matplotlib, torch; print('SentencePiece:', sentencepiece.__version__); print('pandas:', pandas.__version__); print('CUDA:', torch.cuda.is_available())"
 ```
-
-If Windows reports that an Application Control policy blocked a compiled extension, investigate the trusted build and the relevant Code Integrity event. Reinstalling model weights or disabling security protections is not required to diagnose that error. The scoring notebooks can also use a separate CPU-only environment containing `numpy`, `pandas`, `matplotlib`, `filelock`, and Jupyter.
-
-### 5.4 Register and start Jupyter
+### 4.4 Register and start Jupyter
 
 ```bash
 python -m ipykernel install --user --name blip2 --display-name "Python (blip2)"
@@ -210,7 +191,7 @@ jupyter lab
 
 Start Jupyter from the repository root or `scripts/`, and select the `Python (blip2)` kernel. The loaders and experiment notebooks infer the repository root from the working directory.
 
-## 6. Dataset preparation
+## 5. Dataset preparation
 
 Official download page: https://visualqa.org/download.html
 
@@ -235,9 +216,9 @@ Some teammates may already receive extracted subset images and annotations from 
 
 No VQAv2 training dataset or supervised fine-tuning data is used by the present experiments.
 
-## 7. Running the notebooks
+## 6. Running the notebooks
 
-### 7.1 Model loading and smoke testing
+### 6.1 Model loading and smoke testing
 
 `scripts/load_blip2.ipynb` loads the shared Hugging Face checkpoint in BF16 and configures the original 32 queries. Its image model uses a ViT-g-sized representation with 1,408 hidden features, and its query parameter has shape `[1, 32, 768]`. The loader uses a shared `hf_cache/` disk cache and a `12GiB` model-placement budget in the original single-GPU setup.
 
@@ -245,7 +226,7 @@ The model downloads only on the first cache miss. Restarting the Jupyter kernel 
 
 `scripts/baseline_test.ipynb` calls the shared loader through `%run -i` and performs one greedy-decoding example. The observed question was "What is plastered all over the big vehicle?" and the model answered "feel good bus," matching the most frequent human answer for that example. This verifies inference functionality but is not a benchmark accuracy estimate.
 
-### 7.2 Query-count ablation and scoring
+### 6.2 Query-count ablation and scoring
 
 1. Open `scripts/query_ablation.ipynb` with the GPU-enabled environment.
 2. Use `STAGE = "smoke"` for 10 questions per condition, `"pilot"` for 500, or `"main"` for 2,000. The notebook defaults to the smoke stage.
@@ -263,7 +244,7 @@ Prediction and measurement files are stored under `results/query_ablation/<stage
 
 The later optional computational efficiency cell can additionally write `detailed_computational_efficiency.csv`, `efficiency_by_condition.csv`, and `detailed_computational_efficiency.png` from existing saved measurement data. It does not require new model inference.
 
-### 7.3 Leave-one-query-out ablation and scoring
+### 6.3 Leave-one-query-out ablation and scoring
 
 1. Open `scripts/leave_one_query_out.ipynb` with the GPU-enabled environment.
 2. Set `NUM_QUESTIONS = 10` for a smoke test, `200` for the pilot, or `2000` for the full study. The notebook defaults to 10.
@@ -282,7 +263,7 @@ LOQOA results are separate from the query-count results, under `results/leave_on
 
 The scoring notebooks operate on completed saved predictions using the pinned official VQAv2 evaluation implementation. They do not load BLIP-2 or require CUDA/ROCm to score previous runs. The experiments are independently runnable; neither scoring notebook is a prerequisite for the other experiment.
 
-### 7.4 Reproducibility and measurement notes
+### 6.4 Reproducibility and measurement notes
 
 Experimental manifests store the checkpoint revision, hardware backend, GPU name, software versions, selected query indices, dataset hashes, generation settings, and code identifiers. The inference notebooks support interrupted-run recovery, file locking, and restoration of the original 32-query configuration.
 
@@ -290,7 +271,7 @@ The statistical analyses use 2,000 paired image-cluster bootstrap replicates to 
 
 Generation latency measures synchronized `model.generate()` time. It excludes image reading, preprocessing, some transfers, answer decoding, and saving results. The VRAM measurements are PyTorch GPU-memory measurements, not system RAM utilization. System RAM usage was not logged and cannot be reconstructed retrospectively from these files. Cross-GPU latency and VRAM results should not be compared as though the systems were identical.
 
-## 8. Query-count ablation results
+## 7. Query-count ablation results
 
 The following table summarizes the completed NVIDIA RTX 5070 Ti main-stage results. K = 8 and K = 16 accuracies are averages across five subsets; other K values are single runs.
 
@@ -304,7 +285,7 @@ The following table summarizes the completed NVIDIA RTX 5070 Ti main-stage resul
 
 The paired confidence intervals above are not simultaneous intervals adjusted for all comparisons. For K = 8 and K = 16, these intervals are conditional on the five selected query subsets.
 
-### 8.1 Query-subset variability
+### 7.1 Query-subset variability
 
 | Seed | K = 8 accuracy (%) | K = 16 accuracy (%) |
 | ---: | ---: | ---: |
@@ -318,7 +299,7 @@ The best observed K = 16 subset achieved 59.145% accuracy, just 0.345 percentage
 
 The best subset was identified on the same evaluation questions, so its generalization cannot be inferred without an independent evaluation set.
 
-### 8.2 VQAv2 answer type
+### 7.2 VQAv2 answer type
 
 | K | Yes/no (%) | Number (%) | Other (%) |
 | ---: | ---: | ---: | ---: |
@@ -330,7 +311,7 @@ The best subset was identified on the same evaluation questions, so its generali
 
 The evaluated subset contains 769 yes/no, 247 number, and 984 other questions. Reductions differ by answer category; the subgroup results are descriptive rather than evidence of a causal query specialization.
 
-### 8.3 Computational efficiency
+### 7.3 Computational efficiency
 
 The following values summarize the previously recorded NVIDIA measurements. For K = 8 and K = 16, the latency values are means of per-run medians. They are not whole-program wall-clock timings.
 
@@ -346,7 +327,7 @@ Reducing K from 32 to 8 generally shortened generation latency and reduced measu
 
 A prior AMD RX 9070 main-stage replication showed the same overall accuracy pattern: 53.345% for K = 8, 56.446% for K = 16, 59.455% for K = 32, 58.670% for K = 64, and 57.745% for K = 128. That replication should be reported separately from NVIDIA timing and memory measurements.
 
-## 9. Leave-one-query-out results
+## 8. Leave-one-query-out results
 
 The completed NVIDIA LOQOA main stage evaluated 32 different K = 31 omissions plus the original K = 32 baseline on 2,000 questions from 1,931 images.
 
@@ -360,7 +341,7 @@ The completed NVIDIA LOQOA main stage evaluated 32 different K = 31 omissions pl
 | Queries with positive observed marginal importance | 26 |
 | Queries with negative observed marginal importance | 6 |
 
-### 9.1 Selected query importance estimates
+### 8.1 Selected query importance estimates
 
 | Removed query index | K = 31 VQA accuracy (%) | Marginal importance (pp) | Interpretation |
 | ---: | ---: | ---: | --- |
@@ -373,13 +354,13 @@ The completed NVIDIA LOQOA main stage evaluated 32 different K = 31 omissions pl
 
 The remaining query-specific values are available in `query_importance.csv` and `ranked_query_importance.csv`, along with confidence intervals and the complete ranking.
 
-### 9.2 Statistical interpretation
+### 8.2 Statistical interpretation
 
 The LOQOA analysis uses paired image-cluster bootstrap confidence intervals. The pointwise 95% intervals for queries 0 and 31 narrowly excluded zero, but all 32 approximate simultaneous 95% confidence bands included zero. Therefore, no individual query can be declared to have statistically distinguishable importance from zero under that multiple-comparison-aware analysis.
 
 Removing query 2 increased observed accuracy by 0.540 percentage points, but its confidence interval included zero. This does not establish that dropping query 2 reliably improves accuracy on new questions.
 
-### 9.3 Answer-type and question-level findings
+### 8.3 Answer-type and question-level findings
 
 Individual omissions did not have identical observed effects across yes/no, number, and other questions. For example, removing query 8 reduced observed numerical-question accuracy by 2.186 percentage points, while its yes/no accuracy difference was near zero. These are exploratory category-level comparisons and do not establish functional specialization.
 
@@ -387,7 +368,7 @@ The vast majority of question-level official VQA scores remained unchanged after
 
 Taken together with the K = 8 and K = 16 experiment, LOQOA suggests local robustness to losing a single query but greater sensitivity to removing groups of queries. Query interactions and redundancy are plausible explanations, but the LOQOA design alone cannot isolate or prove specific interactions.
 
-## 10. Discussion, limitations, and next steps
+## 9. Discussion, limitations, and next steps
 
 The combined experiments support the following conclusions:
 
@@ -401,37 +382,7 @@ Potential next steps are to compare importance-ranked K = 8 and K = 16 subsets a
 
 The 2,000-question subset is not the full VQAv2 validation benchmark. The experiments modify only inference-time query inputs; they do not fine-tune Q-Former parameters or retrain a model with a different number of learned queries. Grouped and per-query comparisons involve multiple hypotheses, so confidence intervals and selected best-performing subsets require cautious interpretation.
 
-## 11. GitHub usage and storage guidance
-
-The repository is hosted at https://github.com/amitine26/BLIP2_STATS425_Final. The CUDA-specific experimental development branch is `query-ablation-cuda`. Changes on that branch do not update `main` until the team reviews and merges them.
-
-The original `data/v2_mscoco_val2014_annotations.json` file is approximately 163.81 MB, exceeding GitHub's standard 100 MB individual-file limit. Keep it local or distribute it through an appropriate external data source. The original COCO `data/val2014.zip` and Hugging Face model cache should also be excluded from Git tracking. The extracted subset images can remain tracked if the team wants them included, subject to repository size and file limits.
-
-Recommended ignore patterns, to reconcile with the current repository `.gitignore` as necessary:
-
-```gitignore
-/data/val2014.zip
-/data/v2_mscoco_val2014_annotations.json
-/hf_cache/
-/offload/
-.ipynb_checkpoints/
-__pycache__/
-```
-
-To stage updated notebooks, analysis CSVs, and generated figures while working on the CUDA branch:
-
-```bash
-git switch query-ablation-cuda
-git add scripts/ results/ README.md
-git status -uno
-git --no-pager diff --cached --name-only
-git commit -m "Document completed CUDA query ablation and LOQOA results"
-git push origin query-ablation-cuda
-```
-
-Inspect the staged list and avoid accidentally committing large dataset archives, local caches, or unneeded files. If a large file is already included in an unpublished commit, excluding it with `.gitignore` alone does not remove it from that commit's history.
-
-## 12. References
+## 10. References
 
 - Li et al. (2023), **BLIP-2**, ICML: [https://proceedings.mlr.press/v202/li23q.html](https://proceedings.mlr.press/v202/li23q.html)
 - Salesforce LAVIS (original code): [https://github.com/salesforce/LAVIS](https://github.com/salesforce/LAVIS)
